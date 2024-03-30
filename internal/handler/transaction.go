@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/syarifid/bankx/internal/dto"
@@ -61,6 +62,35 @@ func (h *transactionHandler) GetBalance(w http.ResponseWriter, r *http.Request) 
 	successRes := response.SuccessReponse{}
 	successRes.Message = "success"
 	successRes.Data = balance
+
+	json.NewEncoder(w).Encode(successRes)
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *transactionHandler) GetBalanceHistory(w http.ResponseWriter, r *http.Request) {
+	queryParams := r.URL.Query()
+	var param dto.ParamGetBalanceHistory
+
+	param.Limit, _ = strconv.Atoi(queryParams.Get("limit"))
+	param.Offset, _ = strconv.Atoi(queryParams.Get("offset"))
+
+	token, _, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get token from request", http.StatusBadRequest)
+		return
+	}
+
+	history, meta, err := h.transactionSvc.GetBalanceHistory(r.Context(), param, token.Subject())
+	if err != nil {
+		code, msg := ierr.TranslateError(err)
+		http.Error(w, msg, code)
+		return
+	}
+
+	successRes := response.SuccessPageReponse{}
+	successRes.Message = "success"
+	successRes.Data = history
+	successRes.Meta = meta
 
 	json.NewEncoder(w).Encode(successRes)
 	w.WriteHeader(http.StatusOK)
