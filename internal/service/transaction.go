@@ -8,6 +8,7 @@ import (
 	"github.com/syarifid/bankx/internal/dto"
 	"github.com/syarifid/bankx/internal/ierr"
 	"github.com/syarifid/bankx/internal/repo"
+	response "github.com/syarifid/bankx/pkg/resp"
 )
 
 type TransactionService struct {
@@ -49,4 +50,28 @@ func (u *TransactionService) GetBalance(ctx context.Context, sub string) ([]dto.
 	}
 
 	return balance, nil
+}
+
+func (u *TransactionService) GetBalanceHistory(ctx context.Context, param dto.ParamGetBalanceHistory, sub string) ([]dto.ResGetBalanceHistory, response.Meta, error) {
+	meta := response.Meta{}
+
+	if param.Limit == 0 {
+		param.Limit = 5
+	}
+
+	err := u.validator.Struct(param)
+	if err != nil {
+		return nil, meta, ierr.ErrBadRequest
+	}
+
+	res, count, err := u.repo.Transaction.GetBalanceHistory(ctx, param, sub)
+	if err != nil {
+		return nil, meta, err
+	}
+
+	meta.Total = count
+	meta.Limit = param.Limit
+	meta.Offset = param.Offset
+
+	return res, meta, nil
 }
