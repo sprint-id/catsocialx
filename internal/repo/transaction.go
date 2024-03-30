@@ -72,7 +72,7 @@ func (tr *transactionRepo) GetBalanceHistory(ctx context.Context, param dto.Para
 	var res []dto.ResGetBalanceHistory
 	for rows.Next() {
 		var r dto.ResGetBalanceHistory
-		err = rows.Scan(&r.ID, &r.Balance, &r.Currency, &r.TransferProofImg, &r.CreatedAt, &r.Source.BankAccountNumber, &r.Source.BankName)
+		err = rows.Scan(&r.ID, &r.Source.BankAccountNumber, &r.Source.BankName, &r.Balance, &r.Currency, &r.TransferProofImg, &r.CreatedAt)
 		if err != nil {
 			return nil, 0, err
 		}
