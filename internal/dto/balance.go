@@ -16,7 +16,7 @@ type (
 		RecipientBankAccountNumber string `json:"recipientBankAccountNumber" validate:"required,min=5,max=30"`
 		RecipientBankName          string `json:"recipientBankName" validate:"required,min=5,max=30"`
 		FromCurrency               string `json:"fromCurrency" validate:"required,iso4217"`
-		Balances                   string `json:"balances" validate:"required"`
+		Balances                   int    `json:"balances" validate:"required"`
 	}
 	ParamGetBalanceHistory struct {
 		Limit  int `json:"limit"`
@@ -41,6 +41,19 @@ func (d *ReqAddBalance) ToTransactionEntity(userId, bankAccountNumber, bankName 
 		Balance:          d.AddedBalance,
 		Currency:         d.Currency,
 		TransferProofImg: d.TransferProofImg,
+		Source: entity.Source{
+			BankAccountNumber: bankAccountNumber,
+			BankName:          bankName,
+		},
+		UserID: userId,
+	}
+}
+
+func (d *ReqTransaction) ToTransactionEntity(userId, bankAccountNumber, bankName string) entity.Transaction {
+	return entity.Transaction{
+		Balance:          d.Balances,
+		Currency:         d.FromCurrency,
+		TransferProofImg: "",
 		Source: entity.Source{
 			BankAccountNumber: bankAccountNumber,
 			BankName:          bankName,

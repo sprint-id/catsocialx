@@ -71,3 +71,21 @@ func (u *TransactionService) GetBalanceHistory(ctx context.Context, param dto.Pa
 
 	return res, meta, nil
 }
+
+func (u *TransactionService) AddTransaction(ctx context.Context, body dto.ReqTransaction, sub string) error {
+	err := u.validator.Struct(body)
+	if err != nil {
+		return ierr.ErrBadRequest
+	}
+
+	transaction := body.ToTransactionEntity(sub, body.RecipientBankAccountNumber, body.RecipientBankName)
+	err = u.repo.Transaction.AddTransaction(ctx, sub, transaction)
+	if err != nil {
+		if err == ierr.ErrDuplicate {
+			return ierr.ErrBadRequest
+		}
+		return err
+	}
+
+	return nil
+}

@@ -95,3 +95,28 @@ func (h *transactionHandler) GetBalanceHistory(w http.ResponseWriter, r *http.Re
 	json.NewEncoder(w).Encode(successRes)
 	w.WriteHeader(http.StatusOK)
 }
+
+func (h *transactionHandler) AddTransaction(w http.ResponseWriter, r *http.Request) {
+	var req dto.ReqTransaction
+
+	err := json.NewDecoder(r.Body).Decode(&req)
+	if err != nil {
+		http.Error(w, "failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	token, _, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get token from request", http.StatusBadRequest)
+		return
+	}
+
+	err = h.transactionSvc.AddTransaction(r.Context(), req, token.Subject())
+	if err != nil {
+		code, msg := ierr.TranslateError(err)
+		http.Error(w, msg, code)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

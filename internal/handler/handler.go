@@ -103,6 +103,8 @@ func (h *Handler) registRoute() {
 		r.Get("/v1/balance", transactionH.GetBalance)
 		r.Get("/v1/balance/history", transactionH.GetBalanceHistory)
 
+		r.Post("/v1/transaction", transactionH.AddTransaction)
+
 		r.Post("/v1/image", fileH.Upload)
 	})
 }
