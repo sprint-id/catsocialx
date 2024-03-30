@@ -4,11 +4,11 @@ import (
 	"context"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
-	"github.com/vandenbill/social-media-10k-rps/internal/dto"
-	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
-	"github.com/vandenbill/social-media-10k-rps/internal/repo"
-	response "github.com/vandenbill/social-media-10k-rps/pkg/resp"
+	"github.com/syarifid/bankx/internal/cfg"
+	"github.com/syarifid/bankx/internal/dto"
+	"github.com/syarifid/bankx/internal/ierr"
+	"github.com/syarifid/bankx/internal/repo"
+	response "github.com/syarifid/bankx/pkg/resp"
 )
 
 type FriendService struct {

@@ -7,8 +7,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"
-	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
-	"github.com/vandenbill/social-media-10k-rps/internal/service"
+	"github.com/syarifid/bankx/internal/cfg"
+	"github.com/syarifid/bankx/internal/service"
 )
 
 // var (
@@ -70,6 +70,7 @@ func (h *Handler) registRoute() {
 	fileH := newFileHandler(h.cfg)
 	friendH := newFriendHandler(h.service.Friend)
 	postH := newPostHandler(h.service.Post)
+	transactionH := newTransactionHandler(h.service.Transaction)
 
 	// r.Use(middleware.RedirectSlashes)
 	// r.Use(prometheusMiddleware)
@@ -88,8 +89,6 @@ func (h *Handler) registRoute() {
 		r.Use(jwtauth.Verifier(tokenAuth))
 		r.Use(jwtauth.Authenticator(tokenAuth))
 
-		r.Post("/v1/user/link", userH.LinkEmail)
-		r.Post("/v1/user/link/phone", userH.LinkPhone)
 		r.Patch("/v1/user", userH.UpdateAccount)
 
 		r.Get("/v1/friend", friendH.GetFriends)
@@ -99,6 +98,8 @@ func (h *Handler) registRoute() {
 		r.Post("/v1/post", postH.AddPost)
 
 		r.Post("/v1/post/comment", postH.AddComment)
+
+		r.Post("/v1/balance", transactionH.AddBalance)
 
 		r.Post("/v1/image", fileH.Upload)
 	})

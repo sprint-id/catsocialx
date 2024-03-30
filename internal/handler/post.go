@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/vandenbill/social-media-10k-rps/internal/dto"
-	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
-	"github.com/vandenbill/social-media-10k-rps/internal/service"
+	"github.com/syarifid/bankx/internal/dto"
+	"github.com/syarifid/bankx/internal/ierr"
+	"github.com/syarifid/bankx/internal/service"
 )
 
 type postHandler struct {

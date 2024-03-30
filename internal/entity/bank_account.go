@@ -5,6 +5,8 @@ type BankAccount struct {
 	BankName          string `json:"bank_name"`
 	BankAccountName   string `json:"bank_account_name"`
 	BankAccountNumber string `json:"bank_account_number"`
-	
-	UserID            string `json:"user_id"`
+	Balance           int    `json:"balance"`
+	Currency          string `json:"currency"`
+
+	UserID string `json:"user_id"`
 }

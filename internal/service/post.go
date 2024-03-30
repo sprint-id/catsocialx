@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
-	"github.com/vandenbill/social-media-10k-rps/internal/dto"
-	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
-	"github.com/vandenbill/social-media-10k-rps/internal/repo"
+	"github.com/syarifid/bankx/internal/cfg"
+	"github.com/syarifid/bankx/internal/dto"
+	"github.com/syarifid/bankx/internal/ierr"
+	"github.com/syarifid/bankx/internal/repo"
 )
 
 type PostService struct {

@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/vandenbill/social-media-10k-rps/internal/dto"
-	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
-	"github.com/vandenbill/social-media-10k-rps/internal/service"
-	response "github.com/vandenbill/social-media-10k-rps/pkg/resp"
+	"github.com/syarifid/bankx/internal/dto"
+	"github.com/syarifid/bankx/internal/ierr"
+	"github.com/syarifid/bankx/internal/service"
+	response "github.com/syarifid/bankx/pkg/resp"
 )
 
 type userHandler struct {
@@ -74,56 +74,6 @@ func (h *userHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to encode response", http.StatusInternalServerError)
 		return
 	}
-}
-
-func (h *userHandler) LinkEmail(w http.ResponseWriter, r *http.Request) {
-	var req dto.ReqLinkEmail
-
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		http.Error(w, "failed to parse request body", http.StatusBadRequest)
-		return
-	}
-
-	token, _, err := jwtauth.FromContext(r.Context())
-	if err != nil {
-		http.Error(w, "failed to get token from request", http.StatusBadRequest)
-		return
-	}
-
-	err = h.userSvc.LinkEmail(r.Context(), req, token.Subject())
-	if err != nil {
-		code, msg := ierr.TranslateError(err)
-		http.Error(w, msg, code)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
-}
-
-func (h *userHandler) LinkPhone(w http.ResponseWriter, r *http.Request) {
-	var req dto.ReqLinkPhone
-
-	err := json.NewDecoder(r.Body).Decode(&req)
-	if err != nil {
-		http.Error(w, "failed to parse request body", http.StatusBadRequest)
-		return
-	}
-
-	token, _, err := jwtauth.FromContext(r.Context())
-	if err != nil {
-		http.Error(w, "failed to get token from request", http.StatusBadRequest)
-		return
-	}
-
-	err = h.userSvc.LinkPhone(r.Context(), req, token.Subject())
-	if err != nil {
-		code, msg := ierr.TranslateError(err)
-		http.Error(w, msg, code)
-		return
-	}
-
-	w.WriteHeader(http.StatusOK)
 }
 
 func (h *userHandler) UpdateAccount(w http.ResponseWriter, r *http.Request) {

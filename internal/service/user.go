@@ -5,12 +5,11 @@ import (
 	"net/mail"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
-	"github.com/vandenbill/social-media-10k-rps/internal/dto"
-	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
-	"github.com/vandenbill/social-media-10k-rps/internal/repo"
-	"github.com/vandenbill/social-media-10k-rps/pkg/auth"
-	validatorPkg "github.com/vandenbill/social-media-10k-rps/pkg/validator"
+	"github.com/syarifid/bankx/internal/cfg"
+	"github.com/syarifid/bankx/internal/dto"
+	"github.com/syarifid/bankx/internal/ierr"
+	"github.com/syarifid/bankx/internal/repo"
+	"github.com/syarifid/bankx/pkg/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -32,24 +31,13 @@ func (u *UserService) Register(ctx context.Context, body dto.ReqRegister) (dto.R
 		return res, ierr.ErrBadRequest
 	}
 
-	if body.CredentialType == validatorPkg.EmailType {
-		_, err := mail.ParseAddress(body.CredentialValue)
-		if err != nil {
-			return res, ierr.ErrBadRequest
-		}
-	} else if body.CredentialType == validatorPkg.PhoneType {
-		v := struct {
-			Phone string `validate:"required,e164"`
-		}{Phone: body.CredentialValue}
-
-		err := u.validator.Struct(v)
-		if err != nil {
-			return res, ierr.ErrBadRequest
-		}
+	_, err = mail.ParseAddress(body.Email)
+	if err != nil {
+		return res, ierr.ErrBadRequest
 	}
 
-	isUseEmail, user := body.ToEntity(u.cfg.BCryptSalt)
-	userID, err := u.repo.User.Insert(ctx, user, isUseEmail)
+	user := body.ToEntity(u.cfg.BCryptSalt)
+	userID, err := u.repo.User.Insert(ctx, user)
 	if err != nil {
 		return res, err
 	}
@@ -59,11 +47,7 @@ func (u *UserService) Register(ctx context.Context, body dto.ReqRegister) (dto.R
 		return res, err
 	}
 
-	if isUseEmail {
-		res.Email = body.CredentialValue
-	} else {
-		res.Phone = body.CredentialValue
-	}
+	res.Email = body.Email
 	res.Name = body.Name
 	res.AccessToken = token
 
@@ -78,25 +62,12 @@ func (u *UserService) Login(ctx context.Context, body dto.ReqLogin) (dto.ResLogi
 		return res, ierr.ErrBadRequest
 	}
 
-	isUseEmail := true
-	if body.CredentialType == validatorPkg.EmailType {
-		_, err := mail.ParseAddress(body.CredentialValue)
-		if err != nil {
-			return res, ierr.ErrBadRequest
-		}
-	} else if body.CredentialType == validatorPkg.PhoneType {
-		isUseEmail = false
-		v := struct {
-			Phone string `validate:"required,e164"`
-		}{Phone: body.CredentialValue}
-
-		err := u.validator.Struct(v)
-		if err != nil {
-			return res, ierr.ErrBadRequest
-		}
+	_, err = mail.ParseAddress(body.Email)
+	if err != nil {
+		return res, ierr.ErrBadRequest
 	}
 
-	user, err := u.repo.User.GetByEmailOrPhone(ctx, body.CredentialValue, isUseEmail)
+	user, err := u.repo.User.GetByEmail(ctx, body.Email)
 	if err != nil {
 		return res, err
 	}
@@ -114,47 +85,10 @@ func (u *UserService) Login(ctx context.Context, body dto.ReqLogin) (dto.ResLogi
 	}
 
 	res.Email = user.Email
-	res.Phone = user.PhoneNumber
 	res.Name = user.Name
 	res.AccessToken = token
 
 	return res, nil
-}
-
-func (u *UserService) LinkEmail(ctx context.Context, body dto.ReqLinkEmail, sub string) error {
-	err := u.validator.Struct(body)
-	if err != nil {
-		return ierr.ErrBadRequest
-	}
-
-	user, err := u.repo.User.GetByID(ctx, sub)
-	if err != nil {
-		return err
-	}
-	if user.Email != "" {
-		return ierr.ErrBadRequest
-	}
-
-	err = u.repo.User.LinkEmail(ctx, body.Email, sub)
-	return err
-}
-
-func (u *UserService) LinkPhone(ctx context.Context, body dto.ReqLinkPhone, sub string) error {
-	err := u.validator.Struct(body)
-	if err != nil {
-		return ierr.ErrBadRequest
-	}
-
-	user, err := u.repo.User.GetByID(ctx, sub)
-	if err != nil {
-		return err
-	}
-	if user.PhoneNumber != "" {
-		return ierr.ErrBadRequest
-	}
-
-	err = u.repo.User.LinkPhone(ctx, body.Phone, sub)
-	return err
 }
 
 func (u *UserService) UpdateAccount(ctx context.Context, body dto.ReqUpdateAccount, sub string) error {
@@ -163,7 +97,7 @@ func (u *UserService) UpdateAccount(ctx context.Context, body dto.ReqUpdateAccou
 		return ierr.ErrBadRequest
 	}
 
-	if body.ImageURL == "http://incomplete"{
+	if body.ImageURL == "http://incomplete" {
 		return ierr.ErrBadRequest
 	}
 

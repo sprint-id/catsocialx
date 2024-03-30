@@ -6,7 +6,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
+	"github.com/syarifid/bankx/internal/ierr"
 )
 
 type postRepo struct {

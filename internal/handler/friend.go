@@ -6,10 +6,10 @@ import (
 	"strconv"
 
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/vandenbill/social-media-10k-rps/internal/dto"
-	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
-	"github.com/vandenbill/social-media-10k-rps/internal/service"
-	response "github.com/vandenbill/social-media-10k-rps/pkg/resp"
+	"github.com/syarifid/bankx/internal/dto"
+	"github.com/syarifid/bankx/internal/ierr"
+	"github.com/syarifid/bankx/internal/service"
+	response "github.com/syarifid/bankx/pkg/resp"
 )
 
 type friendHandler struct {

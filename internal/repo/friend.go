@@ -10,9 +10,9 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/vandenbill/social-media-10k-rps/internal/dto"
-	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
-	timepkg "github.com/vandenbill/social-media-10k-rps/pkg/time"
+	"github.com/syarifid/bankx/internal/dto"
+	"github.com/syarifid/bankx/internal/ierr"
+	timepkg "github.com/syarifid/bankx/pkg/time"
 )
 
 type friendRepo struct {

@@ -13,8 +13,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/google/uuid"
-	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
-	"github.com/vandenbill/social-media-10k-rps/internal/dto"
+	"github.com/syarifid/bankx/internal/cfg"
+	"github.com/syarifid/bankx/internal/dto"
 )
 
 type fileHandler struct {

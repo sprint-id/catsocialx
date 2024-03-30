@@ -7,8 +7,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/vandenbill/social-media-10k-rps/internal/entity"
-	"github.com/vandenbill/social-media-10k-rps/internal/ierr"
+	"github.com/syarifid/bankx/internal/entity"
+	"github.com/syarifid/bankx/internal/ierr"
 )
 
 type userRepo struct {
@@ -19,15 +19,10 @@ func newUserRepo(conn *pgxpool.Pool) *userRepo {
 	return &userRepo{conn}
 }
 
-func (u *userRepo) Insert(ctx context.Context, user entity.User, isUseEmail bool) (string, error) {
+func (u *userRepo) Insert(ctx context.Context, user entity.User) (string, error) {
 	credVal := user.Email
 	q := `INSERT INTO users (id, name, email, password, created_at)
 	VALUES (gen_random_uuid(), $1, $2, $3, now()) RETURNING id`
-	if !isUseEmail {
-		credVal = user.PhoneNumber
-		q = `INSERT INTO users (id, name, phone_number, password, created_at)
-	VALUES (gen_random_uuid(), $1, $2, $3, now()) RETURNING id`
-	}
 
 	var userID string
 	err := u.conn.QueryRow(ctx, q,
@@ -45,57 +40,17 @@ func (u *userRepo) Insert(ctx context.Context, user entity.User, isUseEmail bool
 	return userID, nil
 }
 
-func (u *userRepo) LinkEmail(ctx context.Context, email, sub string) error {
-	q := `UPDATE users SET email = $1 WHERE id = $2`
-	_, err := u.conn.Exec(ctx, q,
-		email, sub)
-
-	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
-			if pgErr.Code == "23505" {
-				return ierr.ErrDuplicate
-			}
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (u *userRepo) LinkPhone(ctx context.Context, phone, sub string) error {
-	q := `UPDATE users SET phone_number = $1 WHERE id = $2`
-	_, err := u.conn.Exec(ctx, q,
-		phone, sub)
-
-	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
-			if pgErr.Code == "23505" {
-				return ierr.ErrDuplicate
-			}
-		}
-		return err
-	}
-
-	return nil
-}
-
-func (u *userRepo) GetByEmailOrPhone(ctx context.Context, cred string, isUseEmail bool) (entity.User, error) {
+func (u *userRepo) GetByEmail(ctx context.Context, cred string) (entity.User, error) {
 	user := entity.User{}
-	q := `SELECT id, name, email, phone_number, password FROM users
+	q := `SELECT id, name, email, password FROM users
 	WHERE email = $1`
-	if !isUseEmail {
-		q = `SELECT id, name, email, phone_number, password FROM users
-		WHERE phone_number = $1`
-	}
 
 	var email sql.NullString
-	var phone sql.NullString
 
 	err := u.conn.QueryRow(ctx,
-		q, cred).Scan(&user.ID, &user.Name, &email, &phone, &user.Password)
+		q, cred).Scan(&user.ID, &user.Name, &email, &user.Password)
 
 	user.Email = email.String
-	user.PhoneNumber = phone.String
 
 	if err != nil {
 		if err.Error() == "no rows in result set" {
@@ -112,13 +67,11 @@ func (u *userRepo) GetByID(ctx context.Context, id string) (entity.User, error) 
 	q := `SELECT email, phone_number, name, password FROM users
 	WHERE id = $1`
 
-	var phone sql.NullString
 	var email sql.NullString
 
 	err := u.conn.QueryRow(ctx,
-		q, id).Scan(&email, &phone, &user.Name, &user.Password)
+		q, id).Scan(&email, &user.Name, &user.Password)
 
-	user.PhoneNumber = phone.String
 	user.Email = email.String
 
 	if err != nil {
