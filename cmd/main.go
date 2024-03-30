@@ -5,14 +5,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/vandenbill/social-media-10k-rps/internal/cfg"
-	"github.com/vandenbill/social-media-10k-rps/internal/handler"
-	"github.com/vandenbill/social-media-10k-rps/internal/repo"
-	"github.com/vandenbill/social-media-10k-rps/internal/service"
-	"github.com/vandenbill/social-media-10k-rps/pkg/env"
-	"github.com/vandenbill/social-media-10k-rps/pkg/postgre"
-	"github.com/vandenbill/social-media-10k-rps/pkg/router"
-	"github.com/vandenbill/social-media-10k-rps/pkg/validator"
+	"github.com/syarifid/bankx/internal/cfg"
+	"github.com/syarifid/bankx/internal/handler"
+	"github.com/syarifid/bankx/internal/repo"
+	"github.com/syarifid/bankx/internal/service"
+	"github.com/syarifid/bankx/pkg/env"
+	"github.com/syarifid/bankx/pkg/postgre"
+	"github.com/syarifid/bankx/pkg/router"
+	"github.com/syarifid/bankx/pkg/validator"
 )
 
 func main() {
