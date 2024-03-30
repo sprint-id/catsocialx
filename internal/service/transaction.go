@@ -27,11 +27,7 @@ func (u *TransactionService) AddBalance(ctx context.Context, body dto.ReqAddBala
 		return ierr.ErrBadRequest
 	}
 
-	bankAccountID := u.repo.BankAccount.GetBankAccountIDByNumber(ctx, body.SenderBankAccountNumber, body.SenderBankName)
-	if bankAccountID == 0 {
-		return ierr.ErrNotFound
-	}
-	transaction := body.ToTransactionEntity(sub, bankAccountID)
+	transaction := body.ToTransactionEntity(sub, body.SenderBankAccountNumber, body.SenderBankName)
 	err = u.repo.Transaction.AddBalance(ctx, sub, transaction)
 	if err != nil {
 		if err == ierr.ErrDuplicate {
@@ -44,7 +40,7 @@ func (u *TransactionService) AddBalance(ctx context.Context, body dto.ReqAddBala
 }
 
 func (u *TransactionService) GetBalance(ctx context.Context, sub string) ([]dto.ResGetBalance, error) {
-	balance, err := u.repo.BankAccount.GetBalance(ctx, sub)
+	balance, err := u.repo.Transaction.GetBalance(ctx, sub)
 	if err != nil {
 		return nil, err
 	}

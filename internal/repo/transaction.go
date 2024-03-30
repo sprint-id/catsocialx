@@ -20,11 +20,11 @@ func newTransactionRepo(conn *pgxpool.Pool) *transactionRepo {
 
 func (tr *transactionRepo) AddBalance(ctx context.Context, sub string, transaction entity.Transaction) error {
 	// add transaction
-	q := `INSERT INTO transactions (user_id, bank_account_id, balance, currency, transfer_proof_img, created_at)
-	VALUES ( $1, $2, $3, $4, $5, EXTRACT(EPOCH FROM now())::bigint) RETURNING id`
+	q := `INSERT INTO transactions (user_id, bank_name, bank_account_number, balance, currency, transfer_proof_img, created_at)
+	VALUES ( $1, $2, $3, $4, $5, $6, EXTRACT(EPOCH FROM now())::bigint) RETURNING id`
 
 	_, err := tr.conn.Exec(ctx, q,
-		sub, transaction.BankAccountID, transaction.Balance, transaction.Currency, transaction.TransferProofImg)
+		sub, transaction.Source.BankName, transaction.Source.BankAccountNumber, transaction.Balance, transaction.Currency, transaction.TransferProofImg)
 
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
@@ -35,26 +35,34 @@ func (tr *transactionRepo) AddBalance(ctx context.Context, sub string, transacti
 		return err
 	}
 
-	// update balance
-	q = `UPDATE bank_accounts SET balance = balance + $1 WHERE id = $2 AND currency = $3`
-
-	_, err = tr.conn.Exec(ctx, q,
-		transaction.Balance, transaction.BankAccountID, transaction.Currency)
-
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
+func (tr *transactionRepo) GetBalance(ctx context.Context, sub string) ([]dto.ResGetBalance, error) {
+	q := `SELECT SUM(balance), currency FROM transactions WHERE user_id = $1 GROUP BY currency ORDER BY SUM(balance) DESC`
+
+	rows, err := tr.conn.Query(ctx, q, sub)
+	if err != nil {
+		return nil, err
+	}
+
+	var res []dto.ResGetBalance
+	for rows.Next() {
+		var r dto.ResGetBalance
+		err = rows.Scan(&r.Balance, &r.Currency)
+		if err != nil {
+			return nil, err
+		}
+
+		res = append(res, r)
+	}
+
+	return res, nil
+}
+
 func (tr *transactionRepo) GetBalanceHistory(ctx context.Context, param dto.ParamGetBalanceHistory, sub string) ([]dto.ResGetBalanceHistory, int, error) {
-	q := `SELECT transactions.id, transactions.balance, transactions.currency, transactions.transfer_proof_img, transactions.created_at, bank_accounts.bank_account_number, bank_accounts.bank_name
-		FROM transactions
-		JOIN bank_accounts ON transactions.bank_account_id = bank_accounts.id
-		WHERE transactions.user_id = $1
-		ORDER BY transactions.created_at DESC
-		LIMIT $2 OFFSET $3`
+	q := `SELECT id, bank_account_number, bank_name, balance, currency, transfer_proof_img, created_at FROM transactions
+		WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3`
 
 	rows, err := tr.conn.Query(ctx, q, sub, param.Limit, param.Offset)
 	if err != nil {

@@ -36,12 +36,15 @@ type (
 	}
 )
 
-func (d *ReqAddBalance) ToTransactionEntity(userId string, bankAccountId int) entity.Transaction {
+func (d *ReqAddBalance) ToTransactionEntity(userId, bankAccountNumber, bankName string) entity.Transaction {
 	return entity.Transaction{
 		Balance:          d.AddedBalance,
 		Currency:         d.Currency,
 		TransferProofImg: d.TransferProofImg,
-		UserID:           userId,
-		BankAccountID:    bankAccountId,
+		Source: entity.Source{
+			BankAccountNumber: bankAccountNumber,
+			BankName:          bankName,
+		},
+		UserID: userId,
 	}
 }

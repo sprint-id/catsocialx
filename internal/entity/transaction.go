@@ -6,7 +6,7 @@ type Transaction struct {
 	Currency         string `json:"currency"`
 	TransferProofImg string `json:"transfer_proof_img"`
 	CreatedAt        int64  `json:"created_at"`
+	Source           Source `json:"source"`
 
-	UserID        string `json:"user_id"`
-	BankAccountID int    `json:"bank_account_id"`
+	UserID string `json:"user_id"`
 }

@@ -9,22 +9,11 @@ CREATE TABLE IF NOT EXISTS USERS (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS bank_accounts (
-    id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES USERS(id) ON DELETE CASCADE,
-    bank_name VARCHAR,
-    bank_account_name VARCHAR,
-    bank_account_number VARCHAR UNIQUE,
-    balance INT DEFAULT 0,
-    currency VARCHAR DEFAULT 'USD',
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
-);
-
 CREATE TABLE IF NOT EXISTS transactions (
     id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES USERS(id) ON DELETE CASCADE,
-    bank_account_id INT REFERENCES bank_accounts(id) ON DELETE CASCADE,
+    bank_name VARCHAR NOT NULL,
+    bank_account_number VARCHAR NOT NULL,
     balance INT,
     currency VARCHAR DEFAULT 'USD',
     transfer_proof_img VARCHAR,

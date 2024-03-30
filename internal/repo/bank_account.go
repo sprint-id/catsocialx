@@ -27,18 +27,6 @@ func (br *bankAccountRepo) FindByUserIDAndCurrency(sub, currency string) (int, e
 	return id, nil
 }
 
-func (br *bankAccountRepo) GetBankAccountIDByNumber(ctx context.Context, number, bankName string) int {
-	q := `SELECT id FROM bank_accounts WHERE bank_account_number = $1 AND bank_name = $2`
-
-	var id int
-	err := br.conn.QueryRow(ctx, q, number, bankName).Scan(&id)
-	if err != nil {
-		return 0
-	}
-
-	return id
-}
-
 func (br *bankAccountRepo) GetBalance(ctx context.Context, sub string) ([]dto.ResGetBalance, error) {
 	q := `SELECT balance, currency FROM bank_accounts WHERE user_id = $1 ORDER BY balance DESC`
 
