@@ -27,15 +27,12 @@ type (
 		Currency string `json:"currency"`
 	}
 	ResGetBalanceHistory struct {
-		ID               string `json:"id"`
-		Balance          string `json:"balance"`
-		Currency         int    `json:"currency"`
-		TransferProofImg string `json:"transferProofImg"`
-		CreatedAt        string `json:"created_at"`
-		Source           struct {
-			BankAccountNumber string `json:"bankAccountNumber"`
-			BankName          string `json:"bankName"`
-		} `json:"source"`
+		ID               string        `json:"id"`
+		Balance          int           `json:"balance"`
+		Currency         string        `json:"currency"`
+		TransferProofImg string        `json:"transferProofImg"`
+		CreatedAt        int64         `json:"createdAt"`
+		Source           entity.Source `json:"source"`
 	}
 )
 
