@@ -68,8 +68,6 @@ func (h *Handler) registRoute() {
 
 	userH := newUserHandler(h.service.User)
 	fileH := newFileHandler(h.cfg)
-	friendH := newFriendHandler(h.service.Friend)
-	postH := newPostHandler(h.service.Post)
 	transactionH := newTransactionHandler(h.service.Transaction)
 
 	// r.Use(middleware.RedirectSlashes)
@@ -90,14 +88,6 @@ func (h *Handler) registRoute() {
 		r.Use(jwtauth.Authenticator(tokenAuth))
 
 		r.Patch("/v1/user", userH.UpdateAccount)
-
-		r.Get("/v1/friend", friendH.GetFriends)
-		r.Post("/v1/friend", friendH.AddFriend)
-		r.Delete("/v1/friend", friendH.DeleteFriend)
-
-		r.Post("/v1/post", postH.AddPost)
-
-		r.Post("/v1/post/comment", postH.AddComment)
 
 		r.Post("/v1/balance", transactionH.AddBalance)
 		r.Get("/v1/balance", transactionH.GetBalance)
