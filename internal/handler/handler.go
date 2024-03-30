@@ -100,6 +100,7 @@ func (h *Handler) registRoute() {
 		r.Post("/v1/post/comment", postH.AddComment)
 
 		r.Post("/v1/balance", transactionH.AddBalance)
+		r.Get("/v1/balance", transactionH.GetBalance)
 
 		r.Post("/v1/image", fileH.Upload)
 	})

@@ -41,3 +41,12 @@ func (u *TransactionService) AddBalance(ctx context.Context, body dto.ReqAddBala
 
 	return nil
 }
+
+func (u *TransactionService) GetBalance(ctx context.Context, sub string) ([]dto.ResGetBalance, error) {
+	balance, err := u.repo.BankAccount.GetBalance(ctx, sub)
+	if err != nil {
+		return nil, err
+	}
+
+	return balance, nil
+}

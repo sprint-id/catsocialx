@@ -18,16 +18,13 @@ type (
 		FromCurrency               string `json:"fromCurrency" validate:"required,iso4217"`
 		Balances                   string `json:"balances" validate:"required"`
 	}
-	ReqGetBalance struct {
-		UserID string `json:"userId" validate:"required,uuid4"`
-	}
 	ParamGetBalanceHistory struct {
 		Limit  int `json:"limit"`
 		Offset int `json:"offset"`
 	}
 	ResGetBalance struct {
-		Balance  string `json:"balance"`
-		Currency int    `json:"currency"`
+		Balance  int    `json:"balance"`
+		Currency string `json:"currency"`
 	}
 	ResGetBalanceHistory struct {
 		ID               string `json:"id"`

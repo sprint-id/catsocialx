@@ -8,6 +8,7 @@ import (
 	"github.com/syarifid/bankx/internal/dto"
 	"github.com/syarifid/bankx/internal/ierr"
 	"github.com/syarifid/bankx/internal/service"
+	response "github.com/syarifid/bankx/pkg/resp"
 )
 
 type transactionHandler struct {
@@ -40,5 +41,27 @@ func (h *transactionHandler) AddBalance(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	w.WriteHeader(http.StatusOK)
+}
+
+func (h *transactionHandler) GetBalance(w http.ResponseWriter, r *http.Request) {
+	token, _, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get token from request", http.StatusBadRequest)
+		return
+	}
+
+	balance, err := h.transactionSvc.GetBalance(r.Context(), token.Subject())
+	if err != nil {
+		code, msg := ierr.TranslateError(err)
+		http.Error(w, msg, code)
+		return
+	}
+
+	successRes := response.SuccessReponse{}
+	successRes.Message = "success"
+	successRes.Data = balance
+
+	json.NewEncoder(w).Encode(successRes)
 	w.WriteHeader(http.StatusOK)
 }
