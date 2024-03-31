@@ -7,6 +7,9 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/jwtauth/v5"
 	"github.com/lestrrat-go/jwx/v2/jwt"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/syarifid/bankx/internal/cfg"
 	"github.com/syarifid/bankx/internal/service"
 )
@@ -29,23 +32,33 @@ import (
 // 	)
 // )
 
-type responseWriter struct {
-	http.ResponseWriter
-	statusCode int
-}
+// Define the histogram metric.
 
-func newResponseWriter(w http.ResponseWriter) *responseWriter {
-	return &responseWriter{w, http.StatusOK}
-}
+var (
+	httpRequestProm = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "http_request_histogram",
+		Help:    "Histogram of the http request duration.",
+		Buckets: prometheus.LinearBuckets(1, 1, 10),
+	}, []string{"path", "method", "status"})
+)
 
-func (rw *responseWriter) WriteHeader(code int) {
-	rw.statusCode = code
-	rw.ResponseWriter.WriteHeader(code)
-}
+// type responseWriter struct {
+// 	http.ResponseWriter
+// 	statusCode int
+// }
 
-func (rw *responseWriter) Status() int {
-	return rw.statusCode
-}
+// func newResponseWriter(w http.ResponseWriter) *responseWriter {
+// 	return &responseWriter{w, http.StatusOK}
+// }
+
+// func (rw *responseWriter) WriteHeader(code int) {
+// 	rw.statusCode = code
+// 	rw.ResponseWriter.WriteHeader(code)
+// }
+
+// func (rw *responseWriter) Status() int {
+// 	return rw.statusCode
+// }
 
 type Handler struct {
 	router  *chi.Mux
@@ -78,6 +91,19 @@ func (h *Handler) registRoute() {
 	// 		h.ServeHTTP(w, r)
 	// 	}
 	// }(promhttp.Handler()))
+
+	c := chi.NewRouter()
+	c.Use(ChiPrometheusMiddleware)
+	c.Get("/metrics", func(w http.ResponseWriter, r *http.Request) {
+		promhttp.Handler().ServeHTTP(w, r)
+	})
+
+	// GET /healthz -> 200 OK
+	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"service": "ok"}`))
+	})
 
 	r.Post("/v1/user/register", userH.Register)
 	r.Post("/v1/user/login", userH.Login)
@@ -112,3 +138,14 @@ func (h *Handler) registRoute() {
 // 		next.ServeHTTP(rw, r)
 // 	})
 // }
+
+func ChiPrometheusMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+
+		next.ServeHTTP(w, r) // Process request
+
+		status := http.StatusOK // Assuming status OK, customize as needed
+		httpRequestProm.WithLabelValues(r.URL.Path, r.Method, http.StatusText(status)).Observe(float64(time.Since(start).Milliseconds()))
+	})
+}

@@ -27,6 +27,10 @@ func (u *TransactionService) AddBalance(ctx context.Context, body dto.ReqAddBala
 		return ierr.ErrBadRequest
 	}
 
+	if body.TransferProofImg == "http://incomplete" {
+		return ierr.ErrBadRequest
+	}
+
 	transaction := body.ToTransactionEntity(sub, body.SenderBankAccountNumber, body.SenderBankName)
 	err = u.repo.Transaction.AddBalance(ctx, sub, transaction)
 	if err != nil {

@@ -21,9 +21,39 @@ func newTransactionHandler(transactionSvc *service.TransactionService) *transact
 }
 
 func (h *transactionHandler) AddBalance(w http.ResponseWriter, r *http.Request) {
-	var req dto.ReqAddBalance
+	// var req dto.ReqAddBalance
 
-	err := json.NewDecoder(r.Body).Decode(&req)
+	// err := json.NewDecoder(r.Body).Decode(&req)
+	// if err != nil {
+	// 	http.Error(w, "failed to parse request body", http.StatusBadRequest)
+	// 	return
+	// }
+	var req dto.ReqAddBalance
+	var jsonData map[string]interface{}
+
+	// Decode request body into the jsonData map
+	err := json.NewDecoder(r.Body).Decode(&jsonData)
+	if err != nil {
+		http.Error(w, "failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	// Check for unexpected fields
+	expectedFields := []string{"senderBankAccountNumber", "senderBankName", "addedBalance", "currency", "transferProofImg"}
+	for key := range jsonData {
+		if !contains(expectedFields, key) {
+			http.Error(w, "unexpected field in request body: "+key, http.StatusBadRequest)
+			return
+		}
+	}
+
+	// Convert the jsonData map into the req struct
+	bytes, err := json.Marshal(jsonData)
+	if err != nil {
+		http.Error(w, "failed to parse request body", http.StatusBadRequest)
+		return
+	}
+	err = json.Unmarshal(bytes, &req)
 	if err != nil {
 		http.Error(w, "failed to parse request body", http.StatusBadRequest)
 		return
@@ -119,4 +149,14 @@ func (h *transactionHandler) AddTransaction(w http.ResponseWriter, r *http.Reque
 	}
 
 	w.WriteHeader(http.StatusOK)
+}
+
+// The contains function checks if a slice contains a string
+func contains(slice []string, str string) bool {
+	for _, v := range slice {
+		if v == str {
+			return true
+		}
+	}
+	return false
 }
