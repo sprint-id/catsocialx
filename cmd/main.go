@@ -5,14 +5,14 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/syarifid/bankx/internal/cfg"
-	"github.com/syarifid/bankx/internal/handler"
-	"github.com/syarifid/bankx/internal/repo"
-	"github.com/syarifid/bankx/internal/service"
-	"github.com/syarifid/bankx/pkg/env"
-	"github.com/syarifid/bankx/pkg/postgre"
-	"github.com/syarifid/bankx/pkg/router"
-	"github.com/syarifid/bankx/pkg/validator"
+	"github.com/sprint-id/catsocialx/internal/cfg"
+	"github.com/sprint-id/catsocialx/internal/handler"
+	"github.com/sprint-id/catsocialx/internal/repo"
+	"github.com/sprint-id/catsocialx/internal/service"
+	"github.com/sprint-id/catsocialx/pkg/env"
+	"github.com/sprint-id/catsocialx/pkg/postgre"
+	"github.com/sprint-id/catsocialx/pkg/router"
+	"github.com/sprint-id/catsocialx/pkg/validator"
 )
 
 func main() {

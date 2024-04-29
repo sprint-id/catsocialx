@@ -7,18 +7,14 @@ import (
 )
 
 type Cfg struct {
-	DBName         string
-	DBPort         int
-	DBHost         string
-	DBUsername     string
-	DBPassword     string
-	PrometheusAddr string
-	JWTSecret      string
-	BCryptSalt     int
-	S3ID           string
-	S3SecretKey    string
-	S3BucketName   string
-	S3Region   string
+	DBName     string
+	DBPort     int
+	DBHost     string
+	DBUsername string
+	DBPassword string
+	DBParams   string
+	JWTSecret  string
+	BCryptSalt int
 }
 
 func Load() *Cfg {
@@ -29,12 +25,8 @@ func Load() *Cfg {
 	cfg.DBHost = os.Getenv("DB_HOST")
 	cfg.DBUsername = os.Getenv("DB_USERNAME")
 	cfg.DBPassword = os.Getenv("DB_PASSWORD")
-	cfg.PrometheusAddr = os.Getenv("PROMETHEUS_ADDRESS")
+	cfg.DBParams = os.Getenv("DB_PARAMS")
 	cfg.JWTSecret = os.Getenv("JWT_SECRET")
-	cfg.S3ID = os.Getenv("S3_ID")
-	cfg.S3SecretKey = os.Getenv("S3_SECRET_KEY")
-	cfg.S3BucketName = os.Getenv("S3_BUCKET_NAME")
-	cfg.S3Region = os.Getenv("S3_REGION")
 
 	cfg.BCryptSalt, err = strconv.Atoi(os.Getenv("BCRYPT_SALT"))
 	if err != nil {

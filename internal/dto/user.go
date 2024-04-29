@@ -1,8 +1,8 @@
 package dto
 
 import (
-	"github.com/syarifid/bankx/internal/entity"
-	"github.com/syarifid/bankx/pkg/auth"
+	"github.com/sprint-id/catsocialx/internal/entity"
+	"github.com/sprint-id/catsocialx/pkg/auth"
 )
 
 type (

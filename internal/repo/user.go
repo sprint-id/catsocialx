@@ -7,8 +7,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/syarifid/bankx/internal/entity"
-	"github.com/syarifid/bankx/internal/ierr"
+	"github.com/sprint-id/catsocialx/internal/entity"
+	"github.com/sprint-id/catsocialx/internal/ierr"
 )
 
 type userRepo struct {

@@ -7,8 +7,8 @@ import (
 type Repo struct {
 	conn *pgxpool.Pool
 
-	User        *userRepo
-	Transaction *transactionRepo
+	User *userRepo
+	Cat  *catRepo
 }
 
 func NewRepo(conn *pgxpool.Pool) *Repo {
@@ -16,7 +16,7 @@ func NewRepo(conn *pgxpool.Pool) *Repo {
 	repo.conn = conn
 
 	repo.User = newUserRepo(conn)
-	repo.Transaction = newTransactionRepo(conn)
+	repo.Cat = newCatRepo(conn)
 
 	return &repo
 }

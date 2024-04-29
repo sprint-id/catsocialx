@@ -6,6 +6,6 @@ Make new migration script
 
 Migrate database
 
-up : ```migrate -database "postgres://postgres:password@localhost:5432/socmed_ref1?sslmode=disable" -path db/migrations up```
+up : ```migrate -database "postgres://postgres:password@localhost:5432/catsocial?sslmode=disable" -path db/migrations up```
 
-down : ```migrate -database "postgres://postgres:password@localhost:5432/socmed_ref1?sslmode=disable" -path db/migrations down```
+down : ```migrate -database "postgres://postgres:password@localhost:5432/catsocial?sslmode=disable" -path db/migrations down```

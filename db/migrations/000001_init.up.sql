@@ -4,19 +4,26 @@ CREATE TABLE IF NOT EXISTS USERS (
     id UUID PRIMARY KEY,
     email VARCHAR UNIQUE,
     name VARCHAR,
-    image_url VARCHAR,
     password VARCHAR,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE IF NOT EXISTS transactions (
+CREATE TABLE IF NOT EXISTS cats (
     id SERIAL PRIMARY KEY,
     user_id UUID REFERENCES USERS(id) ON DELETE CASCADE,
-    bank_name VARCHAR NOT NULL,
-    bank_account_number VARCHAR NOT NULL,
-    balance INT,
-    currency VARCHAR DEFAULT 'USD',
-    transfer_proof_img VARCHAR,
+    name VARCHAR NOT NULL,
+    race VARCHAR NOT NULL,
+    sex VARCHAR NOT NULL,
+    age_in_month INTEGER NOT NULL,
+    description VARCHAR NOT NULL,
+    image_urls VARCHAR[] NOT NULL,
+    created_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW())
+);
+
+CREATE TABLE IF NOT EXISTS match_cats (
+    id SERIAL PRIMARY KEY,
+    user_cat_id INT REFERENCES cats(id) ON DELETE CASCADE,
+    message VARCHAR NOT NULL,
     created_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW())
 );
 

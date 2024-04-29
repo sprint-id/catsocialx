@@ -5,11 +5,11 @@ import (
 	"net/mail"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/syarifid/bankx/internal/cfg"
-	"github.com/syarifid/bankx/internal/dto"
-	"github.com/syarifid/bankx/internal/ierr"
-	"github.com/syarifid/bankx/internal/repo"
-	"github.com/syarifid/bankx/pkg/auth"
+	"github.com/sprint-id/catsocialx/internal/cfg"
+	"github.com/sprint-id/catsocialx/internal/dto"
+	"github.com/sprint-id/catsocialx/internal/ierr"
+	"github.com/sprint-id/catsocialx/internal/repo"
+	"github.com/sprint-id/catsocialx/pkg/auth"
 	"golang.org/x/crypto/bcrypt"
 )
 

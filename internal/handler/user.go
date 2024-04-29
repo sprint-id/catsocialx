@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/go-chi/jwtauth/v5"
-	"github.com/syarifid/bankx/internal/dto"
-	"github.com/syarifid/bankx/internal/ierr"
-	"github.com/syarifid/bankx/internal/service"
-	response "github.com/syarifid/bankx/pkg/resp"
+	"github.com/sprint-id/catsocialx/internal/dto"
+	"github.com/sprint-id/catsocialx/internal/ierr"
+	"github.com/sprint-id/catsocialx/internal/service"
+	response "github.com/sprint-id/catsocialx/pkg/resp"
 )
 
 type userHandler struct {

@@ -3,8 +3,8 @@ package service
 import (
 	"github.com/go-playground/validator/v10"
 
-	"github.com/syarifid/bankx/internal/cfg"
-	"github.com/syarifid/bankx/internal/repo"
+	"github.com/sprint-id/catsocialx/internal/cfg"
+	"github.com/sprint-id/catsocialx/internal/repo"
 )
 
 type Service struct {
@@ -12,8 +12,8 @@ type Service struct {
 	validator *validator.Validate
 	cfg       *cfg.Cfg
 
-	User        *UserService
-	Transaction *TransactionService
+	User *UserService
+	Cat  *CatService
 }
 
 func NewService(repo *repo.Repo, validator *validator.Validate, cfg *cfg.Cfg) *Service {
@@ -23,7 +23,7 @@ func NewService(repo *repo.Repo, validator *validator.Validate, cfg *cfg.Cfg) *S
 	service.cfg = cfg
 
 	service.User = newUserService(repo, validator, cfg)
-	service.Transaction = newTransactionService(repo, validator, cfg)
+	service.Cat = newCatService(repo, validator, cfg)
 
 	return &service
 }
