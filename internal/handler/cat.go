@@ -120,7 +120,7 @@ func (h *catHandler) GetCat(w http.ResponseWriter, r *http.Request) {
 	param.Race = queryParams.Get("race")
 	param.Sex = queryParams.Get("sex")
 	param.HasMatched, _ = strconv.ParseBool(queryParams.Get("hasMatched"))
-	param.AgeInMonth, _ = strconv.Atoi(queryParams.Get("ageInMonth"))
+	param.AgeInMonth = queryParams.Get("ageInMonth")
 	param.Owned, _ = strconv.ParseBool(queryParams.Get("owned"))
 	param.Search = queryParams.Get("search")
 

@@ -3,6 +3,7 @@ package repo
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -69,18 +70,10 @@ func (cr *catRepo) AddCat(ctx context.Context, sub string, cat entity.Cat) (dto.
 func (cr *catRepo) GetCat(ctx context.Context, param dto.ParamGetCat, sub string) ([]dto.ResGetCat, error) {
 	var query strings.Builder
 
-	if param.HasMatched {
-		query.WriteString(`SELECT c.id, c.name, c.image_urls, c.created_at, EXISTS (
-			SELECT 1 FROM match_cats m WHERE m.user_cat_id = c.id AND m.user_id = $1
-		) AS has_matched, c.description FROM cats c WHERE EXISTS (
-			SELECT 1 FROM match_cats m WHERE m.user_cat_id = c.id
-		)`)
-	} else {
-		query.WriteString(`SELECT c.id, c.name, c.image_urls, c.created_at, EXISTS (
-			SELECT 1 FROM match_cats m WHERE m.user_cat_id = c.id AND m.user_id = $1
-		) AS has_matched, c.description FROM cats c WHERE NOT EXISTS (
-			SELECT 1 FROM match_cats m WHERE m.user_cat_id = c.id
-		)`)
+	query.WriteString("SELECT id, name, race, sex, age_in_month, description, image_urls, has_matched, created_at FROM cats WHERE 1=1 ")
+
+	if param.Owned {
+		query.WriteString(fmt.Sprintf("AND user_id = '%s' ", sub))
 	}
 
 	// param id
@@ -89,17 +82,86 @@ func (cr *catRepo) GetCat(ctx context.Context, param dto.ParamGetCat, sub string
 		if err != nil {
 			return nil, err
 		}
-		query.WriteString(fmt.Sprintf("AND id = %d", id))
+		query.WriteString(fmt.Sprintf("AND id = %d ", id))
 	}
 
-	if param.Owned {
-		query.WriteString("AND user_id = $1 ")
-	} else {
-		query.WriteString("AND user_id != $1 ") // apakah termasuk yang owned kalau misalkan owned = false?
+	// param race
+	// Define a map to store the mappings between race names with spaces and underscores
+	var raceMap = map[string]string{
+		"Maine Coon":        "Maine_Coon",
+		"British Shorthair": "British_Shorthair",
+		"Scottish Fold":     "Scottish_Fold",
+		// Add more mappings as needed
+	}
+
+	if param.Race != "" {
+		// Check if the race name needs to be transformed
+		if mappedRace, ok := raceMap[param.Race]; ok {
+			param.Race = mappedRace
+		}
+
+		query.WriteString(fmt.Sprintf("AND race = '%s' ", param.Race))
+	}
+
+	// param sex
+	if param.Sex != "" {
+		query.WriteString(fmt.Sprintf("AND sex = '%s' ", param.Sex))
+	}
+
+	// param age in month can be equal, grater than and lower than
+	// Assuming param.AgeInMonth is a string containing the ageInMonth parameter with comparison operator, e.g., ">39941"
+	if param.AgeInMonth != "" {
+		operator := ""
+		ageStr := ""
+
+		// Check for the comparison operator at the beginning of the string
+		switch {
+		case strings.HasPrefix(param.AgeInMonth, ">"):
+			operator = ">"
+			ageStr = param.AgeInMonth[1:] // Remove the ">" prefix
+		case strings.HasPrefix(param.AgeInMonth, "<"):
+			operator = "<"
+			ageStr = param.AgeInMonth[1:] // Remove the "<" prefix
+		case strings.HasPrefix(param.AgeInMonth, "="):
+			operator = "="
+			ageStr = param.AgeInMonth[1:] // Remove the "=" prefix
+		default:
+			// Handle exact value case if needed
+			operator = "="
+			ageStr = param.AgeInMonth
+		}
+
+		// Convert ageStr to an integer
+		age, err := strconv.Atoi(ageStr)
+		if err != nil {
+			return nil, err
+		}
+
+		// Add the ageInMonth condition to the query based on the operator
+		switch operator {
+		case ">":
+			query.WriteString(fmt.Sprintf("AND age_in_month > %d ", age))
+		case "<":
+			query.WriteString(fmt.Sprintf("AND age_in_month < %d ", age))
+		case "=":
+			query.WriteString(fmt.Sprintf("AND age_in_month = %d ", age))
+		default:
+			// Handle unsupported operator
+			return nil, errors.New("unsupported operator")
+		}
 	}
 
 	if param.Search != "" {
 		query.WriteString(fmt.Sprintf("AND LOWER(name) LIKE LOWER('%s') ", fmt.Sprintf("%%%s%%", param.Search)))
+	}
+
+	if param.HasMatched {
+		query.WriteString(fmt.Sprintf("AND has_matched = %t ", param.HasMatched))
+	}
+
+	// limit and offset
+	if param.Limit == 0 {
+		param.Limit = 5
 	}
 
 	query.WriteString(fmt.Sprintf("LIMIT %d OFFSET %d", param.Limit, param.Offset))
@@ -107,7 +169,7 @@ func (cr *catRepo) GetCat(ctx context.Context, param dto.ParamGetCat, sub string
 	// show query
 	// fmt.Println(query.String())
 
-	rows, err := cr.conn.Query(ctx, query.String(), sub) // Replace $1 with sub
+	rows, err := cr.conn.Query(ctx, query.String()) // Replace $1 with sub
 	if err != nil {
 		return nil, err
 	}
@@ -118,11 +180,35 @@ func (cr *catRepo) GetCat(ctx context.Context, param dto.ParamGetCat, sub string
 		var imageUrl sql.NullString
 		var createdAt int64
 		var description string
+		var race string
 
 		result := dto.ResGetCat{}
-		err := rows.Scan(&result.ID, &result.Name, &imageUrl, &createdAt, &result.HasMatched, &description)
+		err := rows.Scan(
+			&result.ID,
+			&result.Name,
+			&race,
+			&result.Sex,
+			&result.AgeInMonth,
+			&description,
+			&imageUrl,
+			&result.HasMatched,
+			&createdAt)
 		if err != nil {
 			return nil, err
+		}
+
+		// Transform race
+		var raceMap = map[string]string{
+			"Maine_Coon":        "Maine Coon",
+			"British_Shorthair": "British Shorthair",
+			"Scottish_Fold":     "Scottish Fold",
+			// Add more mappings as needed
+		}
+
+		if mappedRace, ok := raceMap[race]; ok {
+			result.Race = mappedRace
+		} else {
+			result.Race = race // Assign the original race value if it is not found in the map
 		}
 
 		result.ImageUrls = strings.Split(imageUrl.String, ",")

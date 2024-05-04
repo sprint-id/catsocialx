@@ -62,10 +62,6 @@ func (u *CatService) AddCat(ctx context.Context, body dto.ReqAddOrUpdateCat, sub
 
 func (u *CatService) GetCat(ctx context.Context, param dto.ParamGetCat, sub string) ([]dto.ResGetCat, error) {
 
-	if param.Limit == 0 {
-		param.Limit = 5
-	}
-
 	err := u.validator.Struct(param)
 	if err != nil {
 		return nil, ierr.ErrBadRequest

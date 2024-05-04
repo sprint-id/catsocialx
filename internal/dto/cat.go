@@ -32,7 +32,7 @@ type (
 		Race       string `json:"race"`
 		Sex        string `json:"sex"`
 		HasMatched bool   `json:"hasMatched"`
-		AgeInMonth int    `json:"ageInMonth"`
+		AgeInMonth string `json:"ageInMonth"`
 		Owned      bool   `json:"owned"`
 		Search     string `json:"search"`
 	}

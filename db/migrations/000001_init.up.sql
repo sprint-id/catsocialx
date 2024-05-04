@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS cats (
     age_in_month INTEGER NOT NULL,
     description VARCHAR NOT NULL,
     image_urls VARCHAR[] NOT NULL,
+    has_matched BOOLEAN DEFAULT FALSE,
     created_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW())
 );
 -- {
