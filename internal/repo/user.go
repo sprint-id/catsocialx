@@ -118,6 +118,40 @@ func (u *userRepo) UpdateAccount(ctx context.Context, id, name, url string) erro
 	return nil
 }
 
+func (u *userRepo) GetNameBySub(ctx context.Context, id string) (string, error) {
+	q := `SELECT name FROM users WHERE id = $1`
+
+	v := ""
+	err := u.conn.QueryRow(ctx,
+		q, id).Scan(&v)
+
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return "", ierr.ErrNotFound
+		}
+		return "", err
+	}
+
+	return v, nil
+}
+
+func (u *userRepo) GetEmailBySub(ctx context.Context, id string) (string, error) {
+	q := `SELECT email FROM users WHERE id = $1`
+
+	v := ""
+	err := u.conn.QueryRow(ctx,
+		q, id).Scan(&v)
+
+	if err != nil {
+		if err.Error() == "no rows in result set" {
+			return "", ierr.ErrNotFound
+		}
+		return "", err
+	}
+
+	return v, nil
+}
+
 // func (u *userRepo) GetNameByID(ctx context.Context, id string) (string, error) {
 // 	name := ""
 // 	err := u.conn.QueryRow(ctx,

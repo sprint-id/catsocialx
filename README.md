@@ -14,3 +14,6 @@ down : ```migrate -database "postgres://postgres:password@localhost:5432/catsx?s
 
 
 Reference: [API In POSTMAN](https://api.postman.com/collections/1593881-973e9c63-348e-492a-863a-44fd1fbe5c05?access_key=PMAT-01HWNECAMNQ40MVE82HJ3M7YXA)
+
+## Run Cats App
+

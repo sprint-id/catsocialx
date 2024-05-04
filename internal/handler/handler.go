@@ -31,6 +31,7 @@ func (h *Handler) registRoute() {
 
 	userH := newUserHandler(h.service.User)
 	catH := newCatHandler(h.service.Cat)
+	matchH := newMatchHandler(h.service.Match)
 
 	r.Use(middleware.RedirectSlashes)
 
@@ -46,5 +47,10 @@ func (h *Handler) registRoute() {
 
 		r.Post("/v1/cat", catH.AddCat)
 		r.Get("/v1/cat", catH.GetCat)
+		r.Get("/v1/cat/{id}", catH.GetCatByID)
+		r.Put("/v1/cat/{id}", catH.UpdateCat)
+		r.Delete("/v1/cat/{id}", catH.DeleteCat)
+
+		r.Post("/v1/match", matchH.MatchCat)
 	})
 }
