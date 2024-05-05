@@ -56,5 +56,6 @@ func (h *Handler) registRoute() {
 
 		r.Post("/v1/cat/match/approve", matchH.ApproveMatch)
 		r.Post("/v1/cat/match/reject", matchH.RejectMatch)
+		r.Delete("/v1/cat/match/{id}", matchH.DeleteMatch)
 	})
 }

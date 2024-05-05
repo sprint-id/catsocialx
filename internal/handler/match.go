@@ -204,3 +204,27 @@ func (h *matchHandler) RejectMatch(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+// deleteMatch is a handler to delete match
+func (h *matchHandler) DeleteMatch(w http.ResponseWriter, r *http.Request) {
+	matchID := r.URL.Query().Get("id")
+	if matchID == "" {
+		http.Error(w, "match id is required", http.StatusBadRequest)
+		return
+	}
+
+	token, _, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get token from request", http.StatusBadRequest)
+		return
+	}
+
+	err = h.matchSvc.DeleteMatch(r.Context(), token.Subject(), matchID)
+	if err != nil {
+		code, msg := ierr.TranslateError(err)
+		http.Error(w, msg, code)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

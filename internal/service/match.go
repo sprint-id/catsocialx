@@ -103,3 +103,15 @@ func (u *MatchService) RejectMatch(ctx context.Context, body dto.ReqApproveOrRej
 
 	return nil
 }
+
+func (u *MatchService) DeleteMatch(ctx context.Context, sub string, matchId string) error {
+	err := u.repo.Match.DeleteMatch(ctx, sub, matchId)
+	if err != nil {
+		if err == ierr.ErrNotFound {
+			return ierr.ErrNotFound
+		}
+		return err
+	}
+
+	return nil
+}

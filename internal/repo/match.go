@@ -151,3 +151,19 @@ func (mr *matchRepo) RejectMatch(ctx context.Context, sub string, match_id strin
 
 	return nil
 }
+
+func (mr *matchRepo) DeleteMatch(ctx context.Context, sub string, match_id string) error {
+	q := `DELETE FROM match_cats WHERE user_id = $1 AND id = $2`
+
+	_, err := mr.conn.Exec(ctx, q, sub, match_id)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return ierr.ErrNotFound
+			}
+		}
+		return err
+	}
+
+	return nil
+}
