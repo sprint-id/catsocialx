@@ -9,6 +9,7 @@ import (
 	"github.com/sprint-id/catsocialx/internal/dto"
 	"github.com/sprint-id/catsocialx/internal/ierr"
 	"github.com/sprint-id/catsocialx/internal/service"
+	response "github.com/sprint-id/catsocialx/pkg/resp"
 )
 
 type matchHandler struct {
@@ -67,9 +68,6 @@ func (h *matchHandler) MatchCat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// log request
-	fmt.Printf("MatchCat request: %+v\n", req)
-
 	err = h.matchSvc.MatchCat(r.Context(), req, token.Subject())
 	if err != nil {
 		code, msg := ierr.TranslateError(err)
@@ -95,8 +93,12 @@ func (h *matchHandler) GetMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// show response
-	fmt.Printf("GetMatch response: %+v\n", matches)
+	// fmt.Printf("GetMatch response: %+v\n", matches)
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(matches)
+	successRes := response.SuccessReponse{}
+	successRes.Message = "success"
+	successRes.Data = matches
+
+	json.NewEncoder(w).Encode(successRes)
+	w.WriteHeader(http.StatusOK)
 }

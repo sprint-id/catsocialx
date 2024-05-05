@@ -2,7 +2,6 @@ package repo
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgconn"
@@ -26,7 +25,7 @@ func (mr *matchRepo) MatchCat(ctx context.Context, sub string, match_cat entity.
 	VALUES ( $1, $2, $3, $4, EXTRACT(EPOCH FROM now())::bigint)`
 
 	// show the query
-	fmt.Println(q)
+	// fmt.Println(q)
 
 	_, err := mr.conn.Exec(ctx, q,
 		sub, match_cat.MatchCatId, match_cat.UserCatId, match_cat.Message)
@@ -44,7 +43,7 @@ func (mr *matchRepo) MatchCat(ctx context.Context, sub string, match_cat entity.
 }
 
 func (mr *matchRepo) GetMatch(ctx context.Context, sub string) ([]dto.ResGetMatchCat, error) {
-	q := `SELECT u.name, u.email, u.created_at, 
+	q := `SELECT mc.id, u.name, u.email, u.created_at, 
 		mcd.id, mcd.name, mcd.race, mcd.sex, mcd.description, mcd.age_in_month, mcd.image_urls, mcd.has_matched, mcd.created_at, 
 		ucd.id, ucd.name, ucd.race, ucd.sex, ucd.description, ucd.age_in_month, ucd.image_urls, ucd.has_matched, ucd.created_at,
 		mc.message, mc.created_at
@@ -52,10 +51,10 @@ func (mr *matchRepo) GetMatch(ctx context.Context, sub string) ([]dto.ResGetMatc
 		INNER JOIN users u ON mc.user_id = u.id
 		INNER JOIN cats mcd ON mc.user_cat_id = mcd.id
 		INNER JOIN cats ucd ON mc.user_cat_id = ucd.id
-		WHERE mc.user_id = $1
+		WHERE 1=1
 		ORDER BY mc.created_at DESC`
 
-	rows, err := mr.conn.Query(ctx, q, sub)
+	rows, err := mr.conn.Query(ctx, q)
 	if err != nil {
 		return nil, err
 	}
@@ -68,7 +67,7 @@ func (mr *matchRepo) GetMatch(ctx context.Context, sub string) ([]dto.ResGetMatc
 		var matchCatCreatedAt int64
 		var userCatCreatedAt int64
 		var matchCreatedAt int64
-		err = rows.Scan(&match.IssuedBy.Name, &match.IssuedBy.Email, &issuedByCreatedAt,
+		err = rows.Scan(&match.ID, &match.IssuedBy.Name, &match.IssuedBy.Email, &issuedByCreatedAt,
 			&match.MatchCatDetail.ID, &match.MatchCatDetail.Name, &match.MatchCatDetail.Race, &match.MatchCatDetail.Sex, &match.MatchCatDetail.Description, &match.MatchCatDetail.AgeInMonth, &match.MatchCatDetail.ImageUrls, &match.MatchCatDetail.HasMatched, &matchCatCreatedAt,
 			&match.UserCatDetail.ID, &match.UserCatDetail.Name, &match.UserCatDetail.Race, &match.UserCatDetail.Sex, &match.UserCatDetail.Description, &match.UserCatDetail.AgeInMonth, &match.UserCatDetail.ImageUrls, &match.UserCatDetail.HasMatched, &userCatCreatedAt,
 			&match.Message, &matchCreatedAt)

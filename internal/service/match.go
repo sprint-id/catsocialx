@@ -35,7 +35,7 @@ func (u *MatchService) MatchCat(ctx context.Context, body dto.ReqMatchCat, sub s
 
 	// get name from sub
 	name, err := u.repo.User.GetNameBySub(ctx, sub)
-	fmt.Println(name)
+	// fmt.Println(name)
 	if err != nil {
 		fmt.Println("error get name by sub")
 		return err
@@ -43,7 +43,7 @@ func (u *MatchService) MatchCat(ctx context.Context, body dto.ReqMatchCat, sub s
 
 	// get email from sub
 	email, err := u.repo.User.GetEmailBySub(ctx, sub)
-	fmt.Println(email)
+	// fmt.Println(email)
 	if err != nil {
 		fmt.Println("error get email by sub")
 		return err

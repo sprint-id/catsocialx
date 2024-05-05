@@ -22,7 +22,7 @@ func newUserRepo(conn *pgxpool.Pool) *userRepo {
 func (u *userRepo) Insert(ctx context.Context, user entity.User) (string, error) {
 	credVal := user.Email
 	q := `INSERT INTO users (id, name, email, password, created_at)
-	VALUES (gen_random_uuid(), $1, $2, $3, now()) RETURNING id`
+	VALUES (gen_random_uuid(), $1, $2, $3, EXTRACT(EPOCH FROM now())::bigint) RETURNING id`
 
 	var userID string
 	err := u.conn.QueryRow(ctx, q,
