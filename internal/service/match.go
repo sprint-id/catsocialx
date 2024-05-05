@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/sprint-id/catsocialx/internal/cfg"
@@ -26,15 +27,25 @@ func (u *MatchService) MatchCat(ctx context.Context, body dto.ReqMatchCat, sub s
 		return ierr.ErrBadRequest
 	}
 
+	_, err = u.repo.Cat.GetCatByID(ctx, body.UserCatId, sub)
+	if err != nil {
+		fmt.Println("error get cat by id")
+		return ierr.ErrBadRequest
+	}
+
 	// get name from sub
 	name, err := u.repo.User.GetNameBySub(ctx, sub)
+	fmt.Println(name)
 	if err != nil {
+		fmt.Println("error get name by sub")
 		return err
 	}
 
 	// get email from sub
 	email, err := u.repo.User.GetEmailBySub(ctx, sub)
+	fmt.Println(email)
 	if err != nil {
+		fmt.Println("error get email by sub")
 		return err
 	}
 
@@ -48,4 +59,13 @@ func (u *MatchService) MatchCat(ctx context.Context, body dto.ReqMatchCat, sub s
 	}
 
 	return nil
+}
+
+func (u *MatchService) GetMatch(ctx context.Context, sub string) ([]dto.ResGetMatchCat, error) {
+	res, err := u.repo.Match.GetMatch(ctx, sub)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
 }

@@ -51,6 +51,7 @@ func (h *Handler) registRoute() {
 		r.Put("/v1/cat/{id}", catH.UpdateCat)
 		r.Delete("/v1/cat/{id}", catH.DeleteCat)
 
-		r.Post("/v1/match", matchH.MatchCat)
+		r.Post("/v1/cat/match", matchH.MatchCat)
+		r.Get("/v1/cat/match", matchH.GetMatch)
 	})
 }

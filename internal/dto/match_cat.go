@@ -69,15 +69,12 @@ type (
 	}
 
 	ResGetMatchCat struct {
-		Message string `json:"message"`
-		Data    []struct {
-			ID             string          `json:"id"`
-			IssuedBy       entity.IssuedBy `json:"issuedBy"`
-			MatchCatDetail entity.Cat      `json:"matchCatDetail"`
-			UserCatDetail  entity.Cat      `json:"userCatDetail"`
-			Message        string          `json:"message"`
-			CreatedAt      string          `json:"createdAt"`
-		} `json:"data"`
+		ID             string          `json:"id"`
+		IssuedBy       entity.IssuedBy `json:"issuedBy"`
+		MatchCatDetail entity.Cat      `json:"matchCatDetail"`
+		UserCatDetail  entity.Cat      `json:"userCatDetail"`
+		Message        string          `json:"message"`
+		CreatedAt      string          `json:"createdAt"`
 	}
 
 	ReqApproveOrRejectMatchCat struct {
@@ -88,13 +85,13 @@ type (
 // ToMatchCatEntity is a function to convert ReqMatchCat to MatchCat entity
 func (d *ReqMatchCat) ToMatchCatEntity(name, email string) entity.MatchCat {
 	return entity.MatchCat{
-		ID: d.MatchCatId,
 		IssuedBy: entity.IssuedBy{
 			Name:      name,
 			Email:     email,
 			CreatedAt: time.Now().Format(time.RFC3339), // should in ISO 8601 format for time : now
 		},
-		UserCatId: d.UserCatId,
-		Message:   d.Message,
+		MatchCatId: d.MatchCatId,
+		UserCatId:  d.UserCatId,
+		Message:    d.Message,
 	}
 }

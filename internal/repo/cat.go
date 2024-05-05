@@ -220,7 +220,7 @@ func (cr *catRepo) GetCat(ctx context.Context, param dto.ParamGetCat, sub string
 	return results, nil
 }
 
-func (cr *catRepo) GetCatByID(ctx context.Context, id string, sub string) (dto.ResGetCat, error) {
+func (cr *catRepo) GetCatByID(ctx context.Context, id, sub string) (dto.ResGetCat, error) {
 	q := `SELECT id,
 		name,
 		race,

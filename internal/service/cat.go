@@ -75,7 +75,7 @@ func (u *CatService) GetCat(ctx context.Context, param dto.ParamGetCat, sub stri
 	return res, nil
 }
 
-func (u *CatService) GetCatByID(ctx context.Context, id string, sub string) (dto.ResGetCat, error) {
+func (u *CatService) GetCatByID(ctx context.Context, id, sub string) (dto.ResGetCat, error) {
 	res, err := u.repo.Cat.GetCatByID(ctx, id, sub)
 	if err != nil {
 		return res, err
