@@ -69,3 +69,37 @@ func (u *MatchService) GetMatch(ctx context.Context, sub string) ([]dto.ResGetMa
 
 	return res, nil
 }
+
+func (u *MatchService) ApproveMatch(ctx context.Context, body dto.ReqApproveOrRejectMatchCat, sub string) error {
+	err := u.validator.Struct(body)
+	if err != nil {
+		return ierr.ErrBadRequest
+	}
+
+	err = u.repo.Match.ApproveMatch(ctx, sub, body.MatchId)
+	if err != nil {
+		if err == ierr.ErrNotFound {
+			return ierr.ErrNotFound
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (u *MatchService) RejectMatch(ctx context.Context, body dto.ReqApproveOrRejectMatchCat, sub string) error {
+	err := u.validator.Struct(body)
+	if err != nil {
+		return ierr.ErrBadRequest
+	}
+
+	err = u.repo.Match.RejectMatch(ctx, sub, body.MatchId)
+	if err != nil {
+		if err == ierr.ErrNotFound {
+			return ierr.ErrNotFound
+		}
+		return err
+	}
+
+	return nil
+}

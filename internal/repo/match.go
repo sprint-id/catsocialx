@@ -84,3 +84,70 @@ func (mr *matchRepo) GetMatch(ctx context.Context, sub string) ([]dto.ResGetMatc
 
 	return matches, nil
 }
+
+func (mr *matchRepo) ApproveMatch(ctx context.Context, sub string, match_id string) error {
+	mcq := `UPDATE cats c SET has_matched = true FROM match_cats mc WHERE mc.user_id = $1 AND mc.id = $2 AND c.id = mc.match_cat_id`
+	ucq := `UPDATE cats c SET has_matched = true FROM match_cats mc WHERE mc.user_id = $1 AND mc.id = $2 AND c.id = mc.user_cat_id`
+
+	_, err := mr.conn.Exec(ctx, mcq, sub, match_id)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return ierr.ErrNotFound
+			}
+		}
+		return err
+	}
+
+	_, err = mr.conn.Exec(ctx, ucq, sub, match_id)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return ierr.ErrNotFound
+			}
+		}
+		return err
+	}
+
+	// get match_cat_id and user_cat_id from match_id
+	var match_cat_id, user_cat_id string
+	gmcucq := `SELECT match_cat_id, user_cat_id FROM match_cats WHERE id = $1`
+	err = mr.conn.QueryRow(ctx, gmcucq, match_id).Scan(&match_cat_id, &user_cat_id)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return ierr.ErrNotFound
+			}
+		}
+		return err
+	}
+
+	// delete all match_id that contains match_cat_id or user_cat_id except the current match_id
+	_, err = mr.conn.Exec(ctx, `DELETE FROM match_cats WHERE (match_cat_id = $1 OR match_cat_id = $2 OR user_cat_id = $1 OR user_cat_id = $2) AND id != $3`, match_cat_id, user_cat_id, match_id)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return ierr.ErrNotFound
+			}
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (mr *matchRepo) RejectMatch(ctx context.Context, sub string, match_id string) error {
+	q := `UPDATE match_cats SET has_approved = false WHERE user_id = $1 AND id = $2`
+
+	_, err := mr.conn.Exec(ctx, q, sub, match_id)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return ierr.ErrNotFound
+			}
+		}
+		return err
+	}
+
+	return nil
+}

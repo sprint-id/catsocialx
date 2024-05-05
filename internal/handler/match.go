@@ -102,3 +102,105 @@ func (h *matchHandler) GetMatch(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(successRes)
 	w.WriteHeader(http.StatusOK)
 }
+
+func (h *matchHandler) ApproveMatch(w http.ResponseWriter, r *http.Request) {
+	var req dto.ReqApproveOrRejectMatchCat
+	var jsonData map[string]interface{}
+
+	// Decode request body into the jsonData map
+	err := json.NewDecoder(r.Body).Decode(&jsonData)
+	if err != nil {
+		http.Error(w, "failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	// Check for unexpected fields
+	expectedFields := []string{"matchCatId"}
+	for key := range jsonData {
+		if !contains(expectedFields, key) {
+			http.Error(w, "unexpected field in request body: "+key, http.StatusBadRequest)
+			return
+		}
+	}
+
+	// Convert the jsonData map into the req struct
+	bytes, err := json.Marshal(jsonData)
+	if err != nil {
+		http.Error(w, "failed to parse request body", http.StatusBadRequest)
+		return
+	}
+	err = json.Unmarshal(bytes, &req)
+	if err != nil {
+		http.Error(w, "failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	// show request
+	fmt.Printf("ApproveMatch request: %+v\n", req)
+
+	token, _, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get token from request", http.StatusBadRequest)
+		return
+	}
+
+	err = h.matchSvc.ApproveMatch(r.Context(), req, token.Subject())
+	if err != nil {
+		code, msg := ierr.TranslateError(err)
+		http.Error(w, msg, code)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *matchHandler) RejectMatch(w http.ResponseWriter, r *http.Request) {
+	var req dto.ReqApproveOrRejectMatchCat
+	var jsonData map[string]interface{}
+
+	// Decode request body into the jsonData map
+	err := json.NewDecoder(r.Body).Decode(&jsonData)
+	if err != nil {
+		http.Error(w, "failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	// Check for unexpected fields
+	expectedFields := []string{"matchCatId"}
+	for key := range jsonData {
+		if !contains(expectedFields, key) {
+			http.Error(w, "unexpected field in request body: "+key, http.StatusBadRequest)
+			return
+		}
+	}
+
+	// Convert the jsonData map into the req struct
+	bytes, err := json.Marshal(jsonData)
+	if err != nil {
+		http.Error(w, "failed to parse request body", http.StatusBadRequest)
+		return
+	}
+	err = json.Unmarshal(bytes, &req)
+	if err != nil {
+		http.Error(w, "failed to parse request body", http.StatusBadRequest)
+		return
+	}
+
+	// show request
+	fmt.Printf("RejectMatch request: %+v\n", req)
+
+	token, _, err := jwtauth.FromContext(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get token from request", http.StatusBadRequest)
+		return
+	}
+
+	err = h.matchSvc.RejectMatch(r.Context(), req, token.Subject())
+	if err != nil {
+		code, msg := ierr.TranslateError(err)
+		http.Error(w, msg, code)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
