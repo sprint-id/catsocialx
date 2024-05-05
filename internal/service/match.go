@@ -21,16 +21,17 @@ func newMatchService(repo *repo.Repo, validator *validator.Validate, cfg *cfg.Cf
 	return &MatchService{repo, validator, cfg}
 }
 
-func (u *MatchService) MatchCat(ctx context.Context, body dto.ReqMatchCat, sub string) error {
+func (u *MatchService) MatchCat(ctx context.Context, body dto.ReqMatchCat, sub string) (dto.ResMatchCat, error) {
+	var res dto.ResMatchCat
 	err := u.validator.Struct(body)
 	if err != nil {
-		return ierr.ErrBadRequest
+		return res, ierr.ErrBadRequest
 	}
 
 	_, err = u.repo.Cat.GetCatByID(ctx, body.UserCatId, sub)
 	if err != nil {
 		fmt.Println("error get cat by id")
-		return ierr.ErrBadRequest
+		return res, ierr.ErrBadRequest
 	}
 
 	// get name from sub
@@ -38,7 +39,7 @@ func (u *MatchService) MatchCat(ctx context.Context, body dto.ReqMatchCat, sub s
 	// fmt.Println(name)
 	if err != nil {
 		fmt.Println("error get name by sub")
-		return err
+		return res, err
 	}
 
 	// get email from sub
@@ -46,19 +47,19 @@ func (u *MatchService) MatchCat(ctx context.Context, body dto.ReqMatchCat, sub s
 	// fmt.Println(email)
 	if err != nil {
 		fmt.Println("error get email by sub")
-		return err
+		return res, err
 	}
 
 	match := body.ToMatchCatEntity(name, email)
-	err = u.repo.Match.MatchCat(ctx, sub, match)
+	res, err = u.repo.Match.MatchCat(ctx, sub, match)
 	if err != nil {
 		if err == ierr.ErrDuplicate {
-			return ierr.ErrBadRequest
+			return res, ierr.ErrBadRequest
 		}
-		return err
+		return res, err
 	}
 
-	return nil
+	return res, nil
 }
 
 func (u *MatchService) GetMatch(ctx context.Context, sub string) ([]dto.ResGetMatchCat, error) {

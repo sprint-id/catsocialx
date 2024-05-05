@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS match_cats (
     match_cat_id INT REFERENCES cats(id) ON DELETE CASCADE,
     user_cat_id INT REFERENCES cats(id) ON DELETE CASCADE,
     message VARCHAR NOT NULL,
-    has_approved BOOLEAN DEFAULT NULL CHECK (has_approved IS NULL OR has_approved IN (TRUE, FALSE))
+    has_approved BOOLEAN DEFAULT NULL CHECK (has_approved IS NULL OR has_approved IN (TRUE, FALSE)),
     created_at BIGINT DEFAULT EXTRACT(EPOCH FROM NOW())
 );
 

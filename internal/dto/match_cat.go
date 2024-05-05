@@ -80,6 +80,10 @@ type (
 	ReqApproveOrRejectMatchCat struct {
 		MatchId string `json:"matchId" validate:"required"`
 	}
+
+	ResMatchCat struct {
+		MatchId string `json:"matchId"`
+	}
 )
 
 // ToMatchCatEntity is a function to convert ReqMatchCat to MatchCat entity

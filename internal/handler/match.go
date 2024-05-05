@@ -29,6 +29,7 @@ func newMatchHandler(matchSvc *service.MatchService) *matchHandler {
 
 func (h *matchHandler) MatchCat(w http.ResponseWriter, r *http.Request) {
 	var req dto.ReqMatchCat
+	var res dto.ResMatchCat
 	var jsonData map[string]interface{}
 
 	// Decode request body into the jsonData map
@@ -68,14 +69,24 @@ func (h *matchHandler) MatchCat(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = h.matchSvc.MatchCat(r.Context(), req, token.Subject())
+	res, err = h.matchSvc.MatchCat(r.Context(), req, token.Subject())
 	if err != nil {
 		code, msg := ierr.TranslateError(err)
 		http.Error(w, msg, code)
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	successRes := response.SuccessReponse{}
+	successRes.Message = "success"
+	successRes.Data = res
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated) // Set HTTP status code to 201
+	err = json.NewEncoder(w).Encode(successRes)
+	if err != nil {
+		http.Error(w, "failed to encode response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func (h *matchHandler) GetMatch(w http.ResponseWriter, r *http.Request) {
@@ -115,7 +126,7 @@ func (h *matchHandler) ApproveMatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Check for unexpected fields
-	expectedFields := []string{"matchCatId"}
+	expectedFields := []string{"matchId"}
 	for key := range jsonData {
 		if !contains(expectedFields, key) {
 			http.Error(w, "unexpected field in request body: "+key, http.StatusBadRequest)

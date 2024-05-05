@@ -20,26 +20,39 @@ func newMatchRepo(conn *pgxpool.Pool) *matchRepo {
 	return &matchRepo{conn}
 }
 
-func (mr *matchRepo) MatchCat(ctx context.Context, sub string, match_cat entity.MatchCat) error {
+func (mr *matchRepo) MatchCat(ctx context.Context, sub string, match_cat entity.MatchCat) (dto.ResMatchCat, error) {
 	q := `INSERT INTO match_cats (user_id, match_cat_id, user_cat_id, message, created_at)
-	VALUES ( $1, $2, $3, $4, EXTRACT(EPOCH FROM now())::bigint)`
+	VALUES ( $1, $2, $3, $4, EXTRACT(EPOCH FROM now())::bigint) RETURNING id`
 
 	// show the query
 	// fmt.Println(q)
 
-	_, err := mr.conn.Exec(ctx, q,
-		sub, match_cat.MatchCatId, match_cat.UserCatId, match_cat.Message)
-
+	var id string
+	err := mr.conn.QueryRow(ctx, q, sub, match_cat.MatchCatId, match_cat.UserCatId, match_cat.Message).Scan(&id)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
 			if pgErr.Code == "23505" {
-				return ierr.ErrDuplicate
+				return dto.ResMatchCat{}, ierr.ErrDuplicate
 			}
 		}
-		return err
+		return dto.ResMatchCat{}, err
 	}
 
-	return nil
+	return dto.ResMatchCat{MatchId: id}, nil
+
+	// _, err := mr.conn.Exec(ctx, q,
+	// 	sub, match_cat.MatchCatId, match_cat.UserCatId, match_cat.Message)
+
+	// if err != nil {
+	// 	if pgErr, ok := err.(*pgconn.PgError); ok {
+	// 		if pgErr.Code == "23505" {
+	// 			return ierr.ErrDuplicate
+	// 		}
+	// 	}
+	// 	return err
+	// }
+
+	// return nil
 }
 
 func (mr *matchRepo) GetMatch(ctx context.Context, sub string) ([]dto.ResGetMatchCat, error) {
@@ -86,10 +99,21 @@ func (mr *matchRepo) GetMatch(ctx context.Context, sub string) ([]dto.ResGetMatc
 }
 
 func (mr *matchRepo) ApproveMatch(ctx context.Context, sub string, match_id string) error {
+	approveq := `UPDATE match_cats SET has_approved = true WHERE user_id = $1 AND id = $2`
 	mcq := `UPDATE cats c SET has_matched = true FROM match_cats mc WHERE mc.user_id = $1 AND mc.id = $2 AND c.id = mc.match_cat_id`
 	ucq := `UPDATE cats c SET has_matched = true FROM match_cats mc WHERE mc.user_id = $1 AND mc.id = $2 AND c.id = mc.user_cat_id`
 
-	_, err := mr.conn.Exec(ctx, mcq, sub, match_id)
+	_, err := mr.conn.Exec(ctx, approveq, sub, match_id)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			if pgErr.Code == "23505" {
+				return ierr.ErrNotFound
+			}
+		}
+		return err
+	}
+
+	_, err = mr.conn.Exec(ctx, mcq, sub, match_id)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
 			if pgErr.Code == "23505" {
