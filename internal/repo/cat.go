@@ -278,8 +278,8 @@ func (cr *catRepo) DeleteCat(ctx context.Context, id string, sub string) error {
 	q := `DELETE FROM cats WHERE id = $1 AND user_id = $2`
 
 	// log id and sub
-	fmt.Println("id: ", id)
-	fmt.Println("sub: ", sub)
+	// fmt.Println("id: ", id)
+	// fmt.Println("sub: ", sub)
 
 	_, err := cr.conn.Exec(ctx, q, id, sub)
 	if err != nil {

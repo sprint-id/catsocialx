@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -229,7 +228,7 @@ func (h *catHandler) UpdateCat(w http.ResponseWriter, r *http.Request) {
 func (h *catHandler) DeleteCat(w http.ResponseWriter, r *http.Request) {
 	// Get id from URL path parameters
 	id := r.PathValue("id")
-	fmt.Printf("id: %s\n", id)
+	// fmt.Printf("id: %s\n", id)
 
 	token, _, err := jwtauth.FromContext(r.Context())
 	if err != nil {
