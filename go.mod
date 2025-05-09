@@ -1,6 +1,7 @@
 module github.com/sprint-id/catsocialx
 
 go 1.21.6
+toolchain go1.23.7
 
 require (
 	github.com/go-chi/chi v1.5.5
@@ -12,7 +13,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/lestrrat-go/jwx/v2 v2.0.21
 	github.com/pkg/errors v0.9.1
-	golang.org/x/crypto v0.21.0
+	golang.org/x/crypto v0.35.0
 )
 
 require (
@@ -31,8 +32,8 @@ require (
 	github.com/lestrrat-go/iter v1.0.2 // indirect
 	github.com/lestrrat-go/option v1.0.1 // indirect
 	github.com/segmentio/asm v1.2.0 // indirect
-	golang.org/x/net v0.23.0 // indirect
-	golang.org/x/sync v0.5.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/text v0.14.0 // indirect
+	golang.org/x/net v0.36.0 // indirect
+	golang.org/x/sync v0.11.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 )
